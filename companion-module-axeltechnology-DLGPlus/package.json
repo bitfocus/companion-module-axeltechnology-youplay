@@ -1,0 +1,22 @@
+{
+  "name": "axeltechnology-dlgplus",
+  "version": "1.0.0",
+  "description": "Module made to work whit DLGPlus",
+  "manufacturer": "Axel Technology",
+  "product": [
+    "DLGPlus"
+  ],
+  "shortname": "DLGPlus",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "axel",
+    "DLGPlus",
+    "DLG",
+    "plus"
+  ],
+  "author": "Axel Technology",
+  "license": "MIT"
+}

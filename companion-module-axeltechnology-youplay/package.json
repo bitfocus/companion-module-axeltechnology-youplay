@@ -1,0 +1,22 @@
+{
+  "name": "axeltechnology-youplay",
+  "version": "1.0.0",
+  "description": "Module made to work whit YouPlay",
+  "manufacturer": "Axel Technology",
+  "product": [
+    "YouPlay"
+  ],
+  "shortname": "YouPlay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "axel",
+    "youplay",
+    "you",
+    "play"
+  ],
+  "author": "Axel Technology",
+  "license": "MIT"
+}
