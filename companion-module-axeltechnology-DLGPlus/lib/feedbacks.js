@@ -58,61 +58,7 @@ module.exports = {
 					id: 'bg',
 					default: this.rgb(255, 0, 0)
 				
-			},
-				{
-
-					type: 'colorpicker',
-					label: 'Paused color',
-					id: 'PC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-
-					type: 'colorpicker',
-					label: 'Stopped color',
-					id: 'SC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-
-					type: 'colorpicker',
-					label: 'Recording color',
-					id: 'RC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-					type: 'textinput',
-					label: 'Playing Text',
-					id: 'Playtext',
-					default: 'Playing'
-				},
-				{
-					type: 'textinput',
-					label: 'Paused Text',
-					id: 'Pausetext',
-					default: 'Paused'
-				},
-				{
-					type: 'textinput',
-					label: 'Stopped Text',
-					id: 'Stext',
-					default: 'Stopped'
-				},
-				{
-					type: 'textinput',
-					label: 'Recording Text',
-					id: 'Rtext',
-					default: 'Recording'
-				},
-				{
-					type: 'checkbox',
-					label: 'ShowTime',
-					id: 'Stime',
-					default: true
-				}
+			}
 
 			],
 

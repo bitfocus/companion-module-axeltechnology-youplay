@@ -5,12 +5,42 @@ module.exports = {
 	getActions() {
 		return {
 
+			InstanceToControl: {
+				label: 'Decide wich instance to control using this action',
+				options: [{
+					type: 'dropdown',
+					label: 'which Instance',
+					id: 'InstChoise',
+					default: '1',
+					tooltip: 'Which instance?',
+					choices: [
+						{ id: '1', label: '1' },
+						{ id: '2', label: '2' },
+						{ id: '3', label: '3' },
+						{ id: '4', label: '4' },
+						{ id: 'All', label: 'All' },
+					],
+                },
+				{
+
+					type: 'colorpicker',
+					label: 'Channel color',
+					id: 'ChColor',
+					default: this.rgb(0, 0, 0)
+
+				},]
+            },
+
 			Play_PauseClip: {
 				label: 'Play or Pause current clip depending on player status'
 			},
 			skipClip: {
 				label: 'Skip to netx clip',
 				
+			},
+
+			StopClip:{
+				label: 'Stop player clip'
 			},
 			previousClip: {
 				label: 'Previous clip'

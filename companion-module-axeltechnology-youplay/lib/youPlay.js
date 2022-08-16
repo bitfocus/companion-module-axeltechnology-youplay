@@ -11,39 +11,39 @@ let format = '?format=json'
 class YouPlay {
 
 	//the constructor uses the Ip,YPversion and url port specified by the user 
-	constructor(youPlayIp, youPlayVersion, urlPort) {
-		this.YouPlayUrl = urlSuffix + youPlayIp + ':' + urlPort + '/YouPlay' + youPlayVersion + '/REST/'
+	constructor(youPlayIp, urlPort) {
+		this.YouPlayUrl = urlSuffix + youPlayIp + ':' + urlPort + '/YouPlay'
 	}
 
 	//function made to generate the functioning url, since most of the url is the same for all api's
-	getUrl(api, type) {
+	getUrl(YPinstance,api, type) {
 		if (type == 'data') {
-			return url = this.YouPlayUrl + api + format
+			return url = this.YouPlayUrl + YPinstance+'/REST/' + api + format
 		} else if(type == 'command'){
-			return url = this.YouPlayUrl + api
+			return url = this.YouPlayUrl +YPinstance+'/REST/'+ api
         }
 	}
 
 	//function Used in the PlayerInfo class, used to return a Json data file, making it possible to store and use api data
-	async getPlayerStatus() {
-
+	async getPlayerStatus(YPinstance) {
+		//console.log(YPinstance)
 		try {
-			url = this.getUrl('GetPlayerData', 'data')
+			url = this.getUrl(YPinstance,'GetPlayerData', 'data')
 			const response = await fetch(url)
 			const json = await response.json()
 			var dataJson = json
-
+			
 		} catch (e) {
 			console.error('Something went wrong', e)
 		}
 		return dataJson;
-
+		
 	}
 	//function that returns Json file whit recorder data 
-	async getCaptureStatus() {
+	async getCaptureStatus(YPinstance) {
 
 		try {
-			url = this.getUrl('BatchCaptureStatusGet', 'data')
+			url = this.getUrl(YPinstance,'BatchCaptureStatusGet', 'data')
 			const response = await fetch(url)
 			const json = await response.json()
 			var dataJson = json
@@ -56,9 +56,9 @@ class YouPlay {
 	}
 
 	//returns if youplay is in recorder mode
-	async getCaptureMode() {
+	async getCaptureMode(YPinstance) {
 
-		url = this.getUrl('IsCaptureMode', 'command')
+		url = this.getUrl(YPinstance,'IsCaptureMode', 'command')
 		const response = await fetch(url)
 		const json = await response.json()
 
@@ -67,9 +67,9 @@ class YouPlay {
 
 
 	//function called in the index, it will try to connect to a default api to see if a connection is extablished
-	Connect() {
+	Connect(YPinstance) {
 		return new Promise((resolve, reject) => {
-			url = this.getUrl('GetApplicationInfo', 'data')
+			url = this.getUrl(YPinstance,'GetApplicationInfo', 'data')
 			fetch(url)
 				// fetch(url + this.token, this.GETOption())
 				.then((res) => {
@@ -91,71 +91,71 @@ class YouPlay {
 	//actions functions
 
 	//function made to play current clip
-	playClip() {
-		url = this.getUrl('Play', 'command')
+	playClip(YPinstance) {
+		url = this.getUrl(YPinstance,'Play', 'command')
 		fetch(url)
 	}
 	//function made to pause current clip
-	pauseClip() {
-		url = this.getUrl('Pause', 'command')
+	pauseClip(YPinstance) {
+		url = this.getUrl(YPinstance,'Pause', 'command')
 		fetch(url)
 	}
 	//function made to stop clip
-	StopClip() {
-		url = this.getUrl('Stop', 'command')
+	StopClip(YPinstance) {
+		url = this.getUrl(YPinstance,'Stop', 'command')
 		fetch(url)
     }
 
 	//function made to start recording
-	CaptureStart() {
-		url = this.getUrl('CaptureStart', 'command')
+	CaptureStart(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureStart', 'command')
 		fetch(url)
 	}
 	//function made to pause current clip
-	CaptureStop() {
-		url = this.getUrl('CaptureStop', 'command')
+	CaptureStop(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureStop', 'command')
 		fetch(url)
 	}
 	//function made to activate recorder switch, !NEED TO IMPLEMENT ACTION!
-	CaptureSwitch() {
-		url = this.getUrl('CaptureSwitch', 'command')
+	CaptureSwitch(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureSwitch', 'command')
 		fetch(url)
     }
 
 	//function made to skip current clip and move to the next one
-	skipClip() {
-		url = this.getUrl('Skip', 'command')
+	skipClip(YPinstance) {
+		url = this.getUrl(YPinstance,'Skip', 'command')
 		fetch(url)
 	}
 	//function made to play previous clip
-	previousClip() {
-		url = this.getUrl('Previous', 'command')
+	previousClip(YPinstance) {
+		url = this.getUrl(YPinstance,'Previous', 'command')
 		fetch(url)
 	}
 	//function made to toggle mixer mode in player
-	Mixer(number) {
-		url = this.getUrl('Mixer?value=' + number, 'command')
+	Mixer(number,YPinstance) {
+		url = this.getUrl(YPinstance,'Mixer?value=' + number, 'command')
 		fetch(url)
 	}
 	//function made to toggle Logo in player
-	LogoCg(number) {
-		url = this.getUrl('Logo?value=' + number, 'command')
+	LogoCg(number,YPinstance) {
+		url = this.getUrl(YPinstance,'Logo?value=' + number, 'command')
 		fetch(url)
 	}
 
 	//multi use function that activates 3 differnet settings in the Youplay interface(PlayerLoop,OneAtATime,StopToEnd)
-	switchPlayMode(mode) {
-		url = this.getUrl('PlayMode?mode=' + mode, 'command')
+	switchPlayMode(mode,YPinstance) {
+		url = this.getUrl(YPinstance,'PlayMode?mode=' + mode, 'command')
 		fetch(url)
 	}
 	//switches from player to recorder mode
-	switchCaptureMode() {
-		url = this.getUrl('SwitchCaptureMode', 'command')
+	switchCaptureMode(YPinstance) {
+		url = this.getUrl(YPinstance,'SwitchCaptureMode', 'command')
 		fetch(url)
     }
 	//function that plays the clip of the passed index thanks to a numerical keyboard implemented in the module
-	playNumerClip(number) {
-		url = this.getUrl('PrepareAndPlay?clipNumber='+ number, 'command')
+	playNumerClip(number,YPinstance) {
+		url = this.getUrl(YPinstance,'PrepareAndPlay?clipNumber='+ number, 'command')
 		fetch(url)
     }
 

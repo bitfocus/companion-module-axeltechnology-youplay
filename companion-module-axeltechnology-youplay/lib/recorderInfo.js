@@ -13,9 +13,9 @@ class RecorderInfo {
 	}
 
 	//function that updates the local variables whit the Json data recived from the YouPlay class
-	async RecorderDataStatus() {
+	async RecorderDataStatus(instance) {
 
-		this.data = await this.getData.getCaptureStatus()
+		this.data = await this.getData.getCaptureStatus(instance)
 
 		this.CaptureState = this.data['CaptureState']
 		this.Duration = this.data['Duration']

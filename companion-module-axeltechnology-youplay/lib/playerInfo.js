@@ -1,7 +1,7 @@
 /**/
 //Class storing all required data we get from the player api
 class PlayerInfo {
-
+	Instance
 	OnAirUniqueID=0
 	OnAirRemain = 0
 	PlayerStatus=0
@@ -17,13 +17,13 @@ class PlayerInfo {
 	//consturctor, here getData will have a YouPlay obj to get a Json
 	constructor(api) {
 		this.getData=api
+		this.PlayerDataStatus()
 	}
 
 	//function that updates the local variables whit the Json data recived from the YouPlay class
-	async PlayerDataStatus() {
-
-		this.data = await this.getData.getPlayerStatus()
-
+	async PlayerDataStatus(instance) {
+		this.data = await this.getData.getPlayerStatus(instance)
+		this.Instance = instance
 		this.PlayerStatus = this.data['PlayerStatus']
 		this.PlayerLoop = this.data['PlayerLoop']
 		this.PlayerOneAtATime = this.data['PlayerOneAtATime']
@@ -37,14 +37,14 @@ class PlayerInfo {
 
 	}
 	//function made to check youplay state 
-	async IsCapture() {
-		this.CaptureMode = await this.getData.getCaptureMode()
+	async IsCapture(instance) {
+		this.CaptureMode = await this.getData.getCaptureMode(instance)
     }
 
 
 	//debug function used to see which variables are currently stored in the local variables
 	ShowPlayerData() {
-
+		console.log('instance: '+this.Instance)
 		console.log('CaptureMode: '+this.CaptureMode)
 		console.log('PlayerStatus: ' + this.PlayerStatus)
 		console.log('PlayerLoop: ' + this.PlayerLoop)

@@ -9,15 +9,15 @@ module.exports = {
 				id: 'info',
 				width: 12,
 				label: 'Information',
-				value: 'This module lets you interact whit YouPlay'
+				value: 'This module lets you interact whit DLGPlus'
 			},
 			{
 				type: 'textinput',
-				id: 'youPlayIp',
-				label: 'YouPlay IP ',
+				id: 'DLGPlusIp',
+				label: 'DLGPlus IP ',
 				default: '192.168.99.157',
 				width: 12,
-				tooltip: 'Write down the IP on which YouPlay is currently running',
+				tooltip: 'Write down the IP on which DLGPlus is currently running',
 				required: true
 			},
 			{

@@ -29,7 +29,7 @@ module.exports = {
 				tooltip: 'Write down the port you intend to use',
 				required: true
 			},
-			{
+			/*{
 				type: 'dropdown',
 				id: 'YPversion',
 				label: 'YouPlay instance',
@@ -43,7 +43,7 @@ module.exports = {
 					{ id: '4', label: '4' }
 				],
 				required: true
-			}
+			}*/
 		]
 	}
 }

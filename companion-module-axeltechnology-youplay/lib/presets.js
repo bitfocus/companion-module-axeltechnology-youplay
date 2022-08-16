@@ -21,6 +21,11 @@ module.exports = {
 			actions: [{
 				action: 'previousClip',
 			}],
+			feedbacks: [
+				{
+					type:'InstaceBg',
+				},
+			],
 		}),
 
 			//play/pause button
@@ -29,13 +34,11 @@ module.exports = {
 				label: 'Play / Pause',
 				bank: {
 					style: 'text',
-					text: 'Play/Pause',
 					textaligment: 'center:center',
-					png64: this.ICON_PBAR0,
+					png64: this.ICON_PLAY,
 					pngalignment: 'center:center',
 					size: '14',
 					color: '16777215',
-					bgcolor: this.rgb(0, 0, 0),
 				},
 				actions: [{
 					action: 'Play_PauseClip',
@@ -45,17 +48,7 @@ module.exports = {
 				feedbacks: [
 					{
 						type: 'Play/Pause',
-						options: {
-							RC: this.rgb(255, 0, 0),
-							bg: this.rgb(0, 0, 255),
-							SC: this.rgb(0, 0, 0),
-							PC: this.rgb(100, 0, 100),
-							Playtext: 'Playing',
-							Pausetext: 'Paused',
-							Stext: 'Stopped',
-							Rtext: 'Recording',
-							Stime: true
-						}
+						type:'InstaceBg',
 					},
 				],
 			}),
@@ -78,6 +71,11 @@ module.exports = {
 						action: 'StopClip',
 
 					}],
+					feedbacks: [
+						{
+							type:'InstaceBg',
+						},
+					],
 
 				}),
 
@@ -99,6 +97,11 @@ module.exports = {
 					action: 'skipClip',
 
 				}],
+				feedbacks: [
+					{
+						type:'InstaceBg',
+					},
+				],
 
 		}),
 

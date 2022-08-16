@@ -1,11 +1,12 @@
-
+/**/
 
 class Page{
 
-    Name='page'
+    index
+    Name='Page'
     desc=''
     onAir=false
-
-
-
 }
+
+module.exports = Page;
+/**/

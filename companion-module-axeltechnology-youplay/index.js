@@ -10,6 +10,7 @@ const YouPlay = require('./lib/youPlay')
 const PlayerInfo = require('./lib/playerInfo')
 const RecorderInfo = require('./lib/recorderInfo')
 const Keypad = require('./lib/keypad')
+const Color = require('./lib/color')
 
 //companion visualized elements
 const actions = require('./lib/actions')
@@ -26,6 +27,7 @@ class YouPlayInstance extends instance_skel {
 
 	//value used in the keypad reset timeout, used to prevent multiple timeouts to be created
 	interval = 0
+	YPinstance = 1
 
 	//Constructor
 	constructor(system, id, config) {
@@ -48,7 +50,7 @@ class YouPlayInstance extends instance_skel {
 
 	//Companion function called once the status.ok is called??
 	init() {
-		this.inityouplay(this.config)
+		this.inityouplay(this.config,this.YPinstance)
 		this.initVarPresFeed()
 		this.SetProgressArray()
 	}
@@ -84,16 +86,32 @@ class YouPlayInstance extends instance_skel {
 
 		try {
 			//config Youplay whit thi.config:fields
-			this.GetApi = new YouPlay(config.youPlayIp, config.YPversion, config.ipPort)
+			this.GetApi = new YouPlay(config.youPlayIp,config.ipPort)
 
 			//config PlayerInfo passing the YouPlay object
-			this.PlayerInfo = new PlayerInfo(this.GetApi)
+			this.PlayerInfo = [new PlayerInfo(this.GetApi),
+								new PlayerInfo(this.GetApi),
+								new PlayerInfo(this.GetApi),
+								new PlayerInfo(this.GetApi)
+								]
 			//config RecorderInfo passing the YouPlay object
-			this.RecorderInfo = new RecorderInfo(this.GetApi)
+			this.RecorderInfo = [new RecorderInfo(this.GetApi),
+									new RecorderInfo(this.GetApi),
+									new RecorderInfo(this.GetApi),
+									new RecorderInfo(this.GetApi)
+								]
 			//instance KeyPad
 			this.KeyPad = new Keypad()
+			//page background colors
+			this.bgColor = []
+			this.bgColor[0]=15761408
+			this.bgColor[1]=33008
+			this.bgColor[2]=4245504
+			this.bgColor[3]=15745088
+			this.bgColor[4]=14448860
+			
 			//Get Connection status from Api
-			let res = await this.GetApi.Connect()
+			let res = await this.GetApi.Connect(this.YPinstance)
 
 			if (res !== 200) {
 				this.debug(e.message)
@@ -165,157 +183,47 @@ class YouPlayInstance extends instance_skel {
 
 		return result
 	}
-
-
-
-
-	//function made to fill the array whit all the different progress bar frames+
-	//the icon will later be returned thanks to The PICON, a variable that constantly updates whit the index of the array
-	SetProgressArray() {
-
-		this.Progressbar = [21]
-
-		for (var i = 0; i <= 20; i++) {
-			switch (i) {
-				case 0:
-					this.Progressbar[i] = this.ICON_PBAR0
-					break;
-				case 1:
-					this.Progressbar[i] = this.ICON_PBAR5
-					break;
-				case 2:
-					this.Progressbar[i] = this.ICON_PBAR10
-					break;
-				case 3:
-					this.Progressbar[i] = this.ICON_PBAR15
-					break;
-				case 4:
-					this.Progressbar[i] = this.ICON_PBAR20
-					break;
-				case 5:
-					this.Progressbar[i] = this.ICON_PBAR25
-					break;
-				case 6:
-					this.Progressbar[i] = this.ICON_PBAR30
-					break;
-				case 7:
-					this.Progressbar[i] = this.ICON_PBAR35
-					break;
-				case 8:
-					this.Progressbar[i] = this.ICON_PBAR40
-					break;
-				case 9:
-					this.Progressbar[i] = this.ICON_PBAR45
-					break;
-				case 10:
-					this.Progressbar[i] = this.ICON_PBAR50
-					break;
-				case 11:
-					this.Progressbar[i] = this.ICON_PBAR55
-					break;
-				case 12:
-					this.Progressbar[i] = this.ICON_PBAR60
-					break;
-				case 13:
-					this.Progressbar[i] = this.ICON_PBAR65
-					break;
-				case 14:
-					this.Progressbar[i] = this.ICON_PBAR70
-					break;
-				case 15:
-					this.Progressbar[i] = this.ICON_PBAR75
-					break;
-				case 16:
-					this.Progressbar[i] = this.ICON_PBAR80
-					break;
-				case 17:
-					this.Progressbar[i] = this.ICON_PBAR85
-					break;
-				case 18:
-					this.Progressbar[i] = this.ICON_PBAR90
-					break;
-				case 19:
-					this.Progressbar[i] = this.ICON_PBAR95
-					break;
-				case 20:
-					this.Progressbar[i] = this.ICON_PBAR100
-					break;
-			}
-        }
-
-    }
-
-	//Function that can be optimized
-	//this function returns the percentage index, this function is used to check at which position is 
-	//the current clip at, every 5% the index will increase, and the index.js will get the new index and update
-	//the feedback progressbar
-
-	//can be optimized whit checking if the playing clip is the same, if not it won't generate the percentages again
-	//since right now it will generate them everytime the function is called, once the clip changes it will recalculate
-	//percentages, will optimeze speed since function is called every 0.1s
-	progressBar(status) {
-		
-		var percentage = [21]
-		var P5 = this.PlayerInfo.OnAirDuration / 20
-		var i = 0
-
-		//make all the controlls in the if statements to make code unbreakble
-
-		if (status == 1 || status == 2) {
-			
-			if (this.PlayerInfo.OnAirDuration != 0 && this.PlayerInfo.OnAirPosition != 0) {
-					
-					//generate all percentage values
-					for (let tmp = 0; tmp <= 21; tmp++) {
-
-						percentage[tmp] = P5 * tmp
-						if (this.PlayerInfo.OnAirPosition >= percentage[tmp] && this.PlayerInfo.OnAirPosition < percentage[tmp]+P5) {
-							return tmp+1;
-						}
-						
-					}
-				
-			}
+	//checks on which instance to work on
+	checkYPInstance(){
+		if(this.YPinstance=='All'){
+			return true
+		}else{
+			return false
 		}
+	}
 
-		return i
+	saveColor(color,index){
+		this.bgColor[index] = color
+	}
+
+	setColor(index){
+		return this.bgColor[index]
 	}
 
 	//async function that is looped in a setInterval() js function, thanks to this function we can get constant data updates
 	//we use several PlayerInfo class functions to update the used variables
 	async changeVariable() {
-
-		//Value not used, intendet to use it for progress bar function 
-		this.ClipCheck = this.PlayerInfo.OnAirUniqueID
-
 		//check if youplay is in player or recorder mode
-		await this.PlayerInfo.IsCapture()
-
-		if (this.PlayerInfo.CaptureMode) {
-			//recorder mode
-			this.RecorderInfo.RecorderDataStatus()
-			                                             
-			this.setVariable('CTime_Left', 'recording')
-
+		for(var i=0;i<4;i++){
+			//console.log(i)
+			await this.PlayerInfo[i].PlayerDataStatus(i+1)
+			//this.PlayerInfo[i].ShowPlayerData()
+			if (this.PlayerInfo[i].CaptureMode) {
+				//recorder mode
+				this.RecorderInfo[i].RecorderDataStatus(i+1)
+															
+				this.setVariable('CTime_Left', 'recording')
+			} else {
+				/*
+				this.setVariable('CTime_Left', this.setTimeString(this.PlayerInfo[i].OnAirRemain))	
+				this.setVariable('CTP',this.KeyPad.ClipToPlay)
+				*/
+				this.checkFeedbacks('Play/Pause')	
+				this.checkFeedbacks('InstaceBg')
+			}
 			
-
-		} else {
-			//player mdoe
-			await this.PlayerInfo.PlayerDataStatus()
-			this.setVariable('CTime_Left', this.setTimeString(this.PlayerInfo.OnAirRemain))	
-			this.setVariable('CTP',this.KeyPad.ClipToPlay)
-			this.PICON = this.progressBar(this.PlayerInfo.PlayerStatus)
-			this.checkFeedbacks('STE/OAAT/LOOP')
-			this.checkFeedbacks('Mixer')
-			this.checkFeedbacks('LogoCg')
 		}
-		//companion function to call feedback callback
-		this.checkFeedbacks('Rec/Stop')
-
-		this.checkFeedbacks('Play/Pause')	
-
-		this.checkFeedbacks('ModeChange')
-		this.checkFeedbacks('ClipPlaying')
+		
 		
 	}
 
@@ -335,53 +243,136 @@ class YouPlayInstance extends instance_skel {
 	}
 
 
-	//action initializer, defines the function that will be launched on action call
+	//action initializer, defines the function that will be launched on action call, if all = true 
+	//launches the command on all instances
 	action({ action, options }) {
 		switch (action) {
-			case 'Play_PauseClip':
-				this.Play_PauseClip()
-				break;
-			case 'StopClip':
-				this.StopClip()
-				break;
-			case 'skipClip':
-				this.skipClip()
-				break;
-			case 'switchPlayMode':
-				this.switchPlayMode()
-				break;
-			case 'switchCaptureMode':
-				this.switchCaptureMode()
-				break;
-			case 'CaptureStart_Stop':
-				this.CaptureStart()
-				break;
+//---------------------------------------------------------------------------------
+			case 'InstanceToControl':{
+				console.log(options.ChColor)
+				this.InstanceToControl(options.InstChoise)
 
+				//options.ChColor=this.setColor(options.InstChoise)
+				//console.log(options.ChColor)
+			}
+			break;
+//---------------------------------------------------------------------------------
+			case 'Play_PauseClip':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.Play_PauseClip(i)
+					}
+				}else{
+					this.Play_PauseClip(this.YPinstance)
+				}
+				
+				break;
+//---------------------------------------------------------------------------------
+			case 'StopClip':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.StopClip(i)
+					}
+				}else{
+					this.StopClip(this.YPinstance)
+				}
+				break;
+//--------------------------------------------------------------------------------
+			case 'skipClip':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.skipClip(i)
+					}
+				}else{
+					this.skipClip(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------
+			case 'switchPlayMode':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.switchPlayMode(i)
+					}
+				}else{
+					this.switchPlayMode(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------
+			case 'switchCaptureMode':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.switchCaptureMode(i)
+					}
+				}else{
+					this.switchCaptureMode(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------
+			case 'CaptureStart_Stop':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.CaptureStart(i)
+					}
+				}else{
+					this.CaptureStart(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------
 			case 'CaptureSwitch':
-				this.CaptureSwitch()
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.CaptureSwitch(i)
+					}
+				}else{
+					this.CaptureSwitch(this.YPinstance)
+				}
 				break;
+//-------------------------------------------------------------------------------
 			case 'previousClip':
-				this.previousClip()
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.previousClip(i)
+					}
+				}else{
+					this.previousClip(this.YPinstance)
+				}
 				break;
+//-------------------------------------------------------------------------------
 			case 'Mixer':
-				this.Mixer()
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.Mixer(i)
+					}
+				}else{
+					this.Mixer(this.YPinstance)
+				}
 				break;
+//-------------------------------------------------------------------------------
 			case 'LogoCg':
-				this.LogoCg()
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.LogoCg(i)
+					}
+				}else{
+					this.LogoCg(this.YPinstance)
+				}
 				break;
+//-------------------------------------------------------------------------------
 			case 'addNumber':
-				this.KeyPad.keypress(options.NumChoise)
+				this.KeyPad.keypress(options.NumChoise,this.YPinstance)
 				if (this.interval == 0) {
 					this.ClipTM = setTimeout(function () { this.KeyPad.reset(), this.interval= 0 }.bind(this), 2500)
 					this.interval =1 
 				}
 				break;
+//-------------------------------------------------------------------------------
 			case 'playNumerClip':
-				this.playNumerClip(this.KeyPad.ClipToPlay)
+				this.playNumerClip(this.KeyPad.ClipToPlay,this.YPinstance)
 				clearInterval(this.ClipTM)
 				this.KeyPad.reset()
 				this.interval =0
 				break;
+//-------------------------------------------------------------------------------
 			default:
 				return
         }

@@ -6,7 +6,9 @@
 const instance_skel = require('../../instance_skel')
 
 //classes
-const YouPlay = require('./lib/youPlay')
+const DLGPlus = require('./lib/dlgplus')
+const Page = require('./lib/page')
+const PageStatus = require('./lib/pagestatus')
 
 
 //companion visualized elements
@@ -20,7 +22,7 @@ const configs = require('./lib/configs')
 
 
 //Main Code
-class YouPlayInstance extends instance_skel {
+class DLGPlusInstance extends instance_skel {
 
 	//value used in the keypad reset timeout, used to prevent multiple timeouts to be created
 	interval = 0
@@ -38,7 +40,7 @@ class YouPlayInstance extends instance_skel {
 			...feedbacks,
 			...variables,
 			...configs,
-			...Keypad,
+			
 		})
 
 		this.initVarPresFeed()
@@ -54,7 +56,7 @@ class YouPlayInstance extends instance_skel {
 	//Companion function called when instance configurations are saved
 	updateConfig(config) {
 		this.config = config;
-		//this.inityouplay(this.config)
+		this.initdlgplus(this.config)
 		this.initVarPresFeed()	
 	}
 
@@ -77,12 +79,15 @@ class YouPlayInstance extends instance_skel {
 	//initializer function that makes us able to use the various classes (youPlay,playerInfo,KeyPad)
 	//made to only have 1 instance of each class in the code
 	//if a connection is established then the actions will be initialized and the changeVAriable clock will start to work
-	async inityouplay(config) {
+	async initdlgplus(config) {
 
 
 		try {
-			//config Youplay whit thi.config:fields
-			this.GetApi = new YouPlay(config.youPlayIp, config.YPversion, config.ipPort)
+			//config DLGPlus whit thi.config:fields
+			this.GetApi = new DLGPlus(config.DLGPlusIp,config.ipPort)
+			this.PageStatus = new PageStatus(this.GetApi)
+			this.NumPages = new Page()
+			this.LettPages = new Page()
 
 			let res = await this.GetApi.Connect()
 
@@ -107,10 +112,23 @@ class YouPlayInstance extends instance_skel {
 
     }
 
+	async changeVariable() {
+
+		
+		await this.PlayerInfo.PlayerDataStatus()
+
+		this.checkFeedbacks('Rec/Stop')
+
+		this.checkFeedbacks('Play/Pause')	
+
+		this.checkFeedbacks('ModeChange')
+		this.checkFeedbacks('ClipPlaying')
+		
+	}
 
 	//connection issues
 	handleConnectionError() {
-		this.log('error', 'YouPlay connection lost')
+		this.log('error', 'DLGPlus connection lost')
 		this.status(this.STATUS_ERROR, 'Connection error')
 	}
 
@@ -127,50 +145,10 @@ class YouPlayInstance extends instance_skel {
 	//action initializer, defines the function that will be launched on action call
 	action({ action, options }) {
 		switch (action) {
-			case 'Play_PauseClip':
-				this.Play_PauseClip()
-				break;
-			case 'StopClip':
-				this.StopClip()
-				break;
-			case 'skipClip':
-				this.skipClip()
-				break;
-			case 'switchPlayMode':
-				this.switchPlayMode()
-				break;
-			case 'switchCaptureMode':
-				this.switchCaptureMode()
-				break;
-			case 'CaptureStart_Stop':
-				this.CaptureStart()
+			case 'OnAirPage':
+				this.OnAirPage()
 				break;
 
-			case 'CaptureSwitch':
-				this.CaptureSwitch()
-				break;
-			case 'previousClip':
-				this.previousClip()
-				break;
-			case 'Mixer':
-				this.Mixer()
-				break;
-			case 'LogoCg':
-				this.LogoCg()
-				break;
-			case 'addNumber':
-				this.KeyPad.keypress(options.NumChoise)
-				if (this.interval == 0) {
-					this.ClipTM = setTimeout(function () { this.KeyPad.reset(), this.interval= 0 }.bind(this), 2500)
-					this.interval =1 
-				}
-				break;
-			case 'playNumerClip':
-				this.playNumerClip(this.KeyPad.ClipToPlay)
-				clearInterval(this.ClipTM)
-				this.KeyPad.reset()
-				this.interval =0
-				break;
 			default:
 				return
         }
@@ -179,5 +157,5 @@ class YouPlayInstance extends instance_skel {
 
 }
 
-module.exports = YouPlayInstance
+module.exports = DLGPlusInstance
 /**/

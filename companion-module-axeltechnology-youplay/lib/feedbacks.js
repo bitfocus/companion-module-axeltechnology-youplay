@@ -1,4 +1,4 @@
-const { ICON_STE, ICON_OAAT, ICON_LOOP } = require("../icons/icons")
+const { ICON_STE, ICON_OAAT, ICON_LOOP,ICON_PLAY,ICON_STOP} = require("../icons/icons")
 
 /**/
 module.exports = {
@@ -10,35 +10,33 @@ module.exports = {
 		//callbacks, external from feedback declaration for variable issues
 		//feedback for play button,changes color depending on status and implements a progress bar made frame by frame
 		var playPauseCallback = (function (feedback) {
-			var orgTime = ''
-			if (feedback.options.Stime) {
-				orgTime = this.setTimeString(this.PlayerInfo.OnAirRemain)
+			if(this.YPinstance == "All"){
+
+			}else{
+				if (this.PlayerInfo[this.YPinstance-1].PlayerStatus == 2) {
+				return {
+					png64: ICON_PLAY,
+				}
+				} else if (this.PlayerInfo[this.YPinstance-1].PlayerStatus == 1) {
+				return {
+					png64: ICON_STOP,
+				}
+			} 
+		}
+		}).bind(this)
+
+		var InstaceBg = (function (feedback) {
+
+			if(this.YPinstance=="All"){
+				return{
+					bgcolor: this.bgColor[0]
+				}
+			}else{
+				return{
+					bgcolor: this.bgColor[this.YPinstance]
+				}
 			}
-			if (this.PlayerInfo.PlayerStatus == 2) {
-				return {
-					bgcolor: feedback.options.bg,
-					png64: this.Progressbar[this.PICON],
-					text: feedback.options.Playtext + '\\n' + orgTime,
-				}
-			} else if (this.PlayerInfo.PlayerStatus == 1) {
-				return {
-					bgcolor: feedback.options.PC,
-					png64: this.Progressbar[this.PICON],
-					text: feedback.options.Pausetext + '\\n' + orgTime,
-				}
-			} else if (this.PlayerInfo.CaptureMode) {
-				return {
-					bgcolor: feedback.options.RC,
-					png64: this.Progressbar[this.PICON],
-					text: feedback.options.Rtext + '\\n' + orgTime,
-				}
-			} else {
-				return {
-					bgcolor: feedback.options.SC,
-					png64: this.Progressbar[this.PICON],
-					text: feedback.options.Stext + '\\n' + orgTime,
-				}
-            }
+
 		}).bind(this)
 
 		//changes mode button color and text depending on player status
@@ -143,74 +141,18 @@ module.exports = {
 		//called in the play button
 		feedbacks['Play/Pause'] = {
 			type: 'advanced',
-			label: 'Change bar Status when clip is playing',
-			description: 'When the clip is playing, background, remaining time and Progress bar will be changed',
-			options: [{
-				
-					type: 'colorpicker',
-					label: 'Playing color',
-					id: 'bg',
-					default: this.rgb(255, 0, 0)
-				
-			},
-				{
-
-					type: 'colorpicker',
-					label: 'Paused color',
-					id: 'PC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-
-					type: 'colorpicker',
-					label: 'Stopped color',
-					id: 'SC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-
-					type: 'colorpicker',
-					label: 'Recording color',
-					id: 'RC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-					type: 'textinput',
-					label: 'Playing Text',
-					id: 'Playtext',
-					default: 'Playing'
-				},
-				{
-					type: 'textinput',
-					label: 'Paused Text',
-					id: 'Pausetext',
-					default: 'Paused'
-				},
-				{
-					type: 'textinput',
-					label: 'Stopped Text',
-					id: 'Stext',
-					default: 'Stopped'
-				},
-				{
-					type: 'textinput',
-					label: 'Recording Text',
-					id: 'Rtext',
-					default: 'Recording'
-				},
-				{
-					type: 'checkbox',
-					label: 'ShowTime',
-					id: 'Stime',
-					default: true
-				}
-
-			],
+			label: 'Change button Status when clip is playing',
+			description: 'When the clip is playing, background will be changed',
 
 			callback: playPauseCallback
+		},
+
+		feedbacks['InstaceBg'] = {
+			type: 'advanced',
+			label: 'Change button background depending on instance',
+			description: 'Change button background depending on instance',
+
+			callback: InstaceBg
 		},
 
 		//called in the mode switcher

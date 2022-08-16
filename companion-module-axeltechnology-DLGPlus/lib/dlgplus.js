@@ -11,7 +11,7 @@ let format2 = '&format=json'
 class DLGplus {
 
     constructor(DLGPlusIp, urlPort) {
-		this.DLGPlusUrl = urlSuffix + DLGPlusIp + ':' + urlPort + '/DLGPlus/' + '/REST/'
+		this.DLGPlusUrl = urlSuffix + DLGPlusIp + ':' + urlPort + '/DLGPlus/' + 'REST/'
 	}
 
     //function made to generate the functioning url, since most of the url are the same for all api's
@@ -25,11 +25,11 @@ class DLGplus {
 		}
 	}
 
-	//function to see wich channel is currently being used in the program
-	async getActiveChannel(){
+	//function to get channel info
+	async getChannelinfo(channel){
 
 		try {
-			url = this.getUrl('GetNameChannels', 'data')
+			url = this.getUrl('GetChannel?ChannelName=Channel'+channel, 'data2')
 			const response = await fetch(url)
 			const json = await response.json()
 			var dataJson = json
@@ -80,6 +80,22 @@ class DLGplus {
 				})
 		})
 	}
+
+	//action functions
+
+	//function that takes a page on air (one way only)
+	OnAirPage(Channel,Page){
+
+		url = this.getUrl('TakePage?ChannelName=Channel+'+Channel+'&PageName='+Page,'command')
+		fetch(url)
+
+	}
+
+
+
+
+
+
 
 
 }
