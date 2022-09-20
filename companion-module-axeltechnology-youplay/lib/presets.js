@@ -1,5 +1,7 @@
+const { ICON_ALL, ICON_MIXER, ICON_CG } = require("../icons/icons")
 /**/
 module.exports = {
+
 	//preset initializer, in this function we declare which configuration and which actions will the preset function use
 	init_presets() {
 		const presets = []
@@ -27,58 +29,61 @@ module.exports = {
 				},
 			],
 		}),
+//-------------------------------------------------------------------------------
+		//play/pause button
+		presets.push({
+			category: 'Player',
+			label: 'Play / Pause',
+			bank: {
+				style: 'text',
+				textaligment: 'center:center',
+				png64: this.ICON_PLAY,
+				pngalignment: 'center:center',
+				size: '14',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'Play_PauseClip',
 
-			//play/pause button
-			presets.push({
-				category: 'Player',
-				label: 'Play / Pause',
-				bank: {
-					style: 'text',
-					textaligment: 'center:center',
-					png64: this.ICON_PLAY,
-					pngalignment: 'center:center',
-					size: '14',
-					color: '16777215',
+			}],
+
+			feedbacks: [
+				{
+					type: 'Play/Pause',
 				},
-				actions: [{
-					action: 'Play_PauseClip',
+				{
+					type:'InstaceBg',
+				}
+				
+			],
+		}),
+//-------------------------------------------------------------------------------
+		//stop button
+		presets.push({
+			category: 'Player',
+			label: 'Stop',
+			bank: {
+				style: 'text',
+				text: '',
+				textaligment: 'center:top',
+				png64: this.ICON_STOP,
+				pngalignment: 'center:center',
+				size: '14',
+				color: '16777215',
+				bgcolor: this.rgb(0, 0, 0),
+			},
+			actions: [{
+				action: 'StopClip',
 
-				}],
+			}],
+			feedbacks: [
+				{
+					type:'InstaceBg',
+				},
+			],
 
-				feedbacks: [
-					{
-						type: 'Play/Pause',
-						type:'InstaceBg',
-					},
-				],
-			}),
-
-				//stop button
-				presets.push({
-					category: 'Player',
-					label: 'Stop',
-					bank: {
-						style: 'text',
-						text: '',
-						textaligment: 'center:top',
-						png64: this.ICON_STOP,
-						pngalignment: 'center:center',
-						size: '14',
-						color: '16777215',
-						bgcolor: this.rgb(0, 0, 0),
-					},
-					actions: [{
-						action: 'StopClip',
-
-					}],
-					feedbacks: [
-						{
-							type:'InstaceBg',
-						},
-					],
-
-				}),
-
+		}),
+//-------------------------------------------------------------------------------
 		//skip button
 		presets.push({
 				category: 'Player',
@@ -104,11 +109,11 @@ module.exports = {
 				],
 
 		}),
-
+//-------------------------------------------------------------------------------
 		//STE Button
 		presets.push({
 			category: 'Player',
-			label: 'Player Mode Changer',
+			label: 'Start To End',
 			bank: {
 				style: 'text',
 				text: '',
@@ -133,18 +138,74 @@ module.exports = {
             }]
 
 		}),
-		
+		//OAAT Button
+		presets.push({
+				category: 'Player',
+				label: 'One at a time',
+				bank: {
+					style: 'text',
+					text: '',
+					textaligment: 'center:top',
+					png64: this.ICON_OAAT,
+					pngalignment: 'center:center',
+					size: '14',
+					color: '16777215',
+					bgcolor: this.rgb(0, 0, 0),
+				},
+			actions: [{
+				action: 'switchPlayMode',
+				options: {
+					ModeChoise: 1,
+				}
+			}],
+			feedbacks: [{
+				type: 'STE/OAAT/LOOP',
+				options: {
+					ModeChoise: 1
+				}
+			}]
+
+		})
+		//Loop Button
+		presets.push({
+			category: 'Player',
+			label: 'Loop',
+			bank: {
+				style: 'text',
+				text: '',
+				textaligment: 'center:top',
+				png64: this.ICON_LOOP,
+				pngalignment: 'center:center',
+				size: '14',
+				color: '16777215',
+				bgcolor: this.rgb(0, 0, 0),
+			},
+			actions: [{
+				action: 'switchPlayMode',
+				options: {
+					ModeChoise: 2,
+				}
+			}],
+			feedbacks: [{
+				type: 'STE/OAAT/LOOP',
+				options: {
+					ModeChoise: 2
+				}
+			}]
+
+		})
+
+//-------------------------------------------------------------------------------
 		//Mixer Button
 		presets.push({
 			category: 'Player',
 			label: 'Mixer',
 			bank: {
 				style: 'text',
-				text: 'Mixer',
-				textaligment: 'center:top',
+				png64: this.ICON_MIXER,
+				pngalignment: 'center:center',
 				size: '24',
 				color: '16777215',
-				bgcolor: this.rgb(0, 0, 0),
 			},
 			actions: [{
 				action: 'Mixer',
@@ -152,42 +213,176 @@ module.exports = {
 			}],
 			feedbacks: [{
 				type: 'Mixer',
-				style: {
-
-					color: this.rgb(255, 255, 255),
-					bgcolor: this.rgb(255, 0, 0)
-				},
 
 			}]
 
 		})
-
-		//Logo Cg Button
+//-------------------------------------------------------------------------------
+		//Logo Cg Button	
 		presets.push({
 			category: 'Player',
-			label: 'LogoCg',
+			label: 'Player Audio Preview',
 			bank: {
 				style: 'text',
-				text: 'Cg',
-				textaligment: 'center:top',
+				png64: this.ICON_AUDIO_PREVIEW,
+				pngalignment: 'center:center',
 				size: '24',
 				color: '16777215',
-				bgcolor: this.rgb(0, 0, 0),
 			},
 			actions: [{
-				action: 'LogoCg',
+				action: 'PlayerAudioPreview',
 
 			}],
 			feedbacks: [{
-				type: 'LogoCg',
-				style: {
-
-					color: this.rgb(255, 255, 255),
-					bgcolor: this.rgb(255, 0, 0)
-				},
+				type: 'PlayerAudioPreview',
 			}]
 
 		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Recorder',
+			label: 'Capture Audio Preview',
+			bank: {
+				style: 'text',
+				png64: this.ICON_AUDIO_PREVIEW,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'CaptureAudioPreview',
+
+			}],
+			feedbacks: [{
+				type: 'CaptureAudioPreview',
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Recorder',
+			label: 'Capture Add To Playlist',
+			bank: {
+				style: 'text',
+				png64: this.ICON_ADDTOPLAYLIST,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'CaptureAddToPlaylist',
+
+			}],
+			feedbacks: [{
+				type: 'CaptureAddToPlaylist',
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Recorder',
+			label: 'Change Capture Scheduler',
+			bank: {
+				style: 'text',
+				png64: this.ICON_SCHEDULE,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'ChangeCaptureScheduler',
+
+			}],
+			feedbacks: [{
+				type: 'ChangeCaptureScheduler',
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		
+
+		
+		presets.push({
+			category: 'Player',
+			label: 'setOnAirMarkIn',
+			bank: {
+				style: 'text',
+				png64: this.ICON_MARK_IN,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'setOnAirMarkIn',
+
+			}],
+			feedbacks: [{
+				type: 'InstaceBg',
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Player',
+			label: 'setOnAirMarkOut',
+			bank: {
+				style: 'text',
+				png64: this.ICON_MARK_OUT,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'setOnAirMarkOut',
+
+			}],
+			feedbacks: [{
+				type: 'InstaceBg',
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Player',
+			label: 'applyOnAirMarkers',
+			bank: {
+				style: 'text',
+				png64: this.ICON_MARK_YES,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'applyOnAirMarkers',
+
+			}],
+			feedbacks: [{
+				type: 'InstaceBg',
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Player',
+			label: 'resetOnAirMarkers',
+			bank: {
+				style: 'text',
+				png64: this.ICON_MARK_NO,
+				pngalignment: 'center:center',
+				size: '24',
+				color: '16777215',
+			},
+			actions: [{
+				action: 'resetOnAirMarkers',
+
+			}],
+			feedbacks: [{
+				type: 'InstaceBg',
+			}]
+
+		})
+
+//-------------------------------------------------------------------------------
 		//Mode Switcher
 		presets.push({
 			category: 'Player',
@@ -207,41 +402,61 @@ module.exports = {
 			feedbacks: [{
 				type: 'ModeChange',
 				options: {
-					RC: this.rgb(255, 0, 0),
-					PC: this.rgb(0, 0, 255),
 					Ptext: 'Player',
 					Rtext: 'Recorder'
                 }
 			}]
 
 		})
+//-------------------------------------------------------------------------------
 		//Rec Button
 		presets.push({
 			category: 'Recorder',
 			label: 'Start/Stop recording',
 			bank: {
 				style: 'text',
-				text: 'Start/Stop \\n Recording',
 				color: '16777215',
+				png64: this.ICON_REC,
 				textaligment: 'center:center',
 				size: '14',
 				bgcolor: this.rgb(0, 0, 0),
 			},
 			actions: [{
-				action: 'CaptureStart_Stop',
+				action: 'CaptureStart',
 
 			}],
 			feedbacks: [{
 				type: 'Rec/Stop',
-				options: {
-					RC:this.rgb(255,0,0),
-					SC: this.rgb(0, 0, 0),
-					PC: this.rgb(155, 0, 155),
-				}
 			}]
 
 		})
 
+//--------------------------------------
+		//Mode Switcher
+		presets.push({
+			category: 'Recorder',
+			label: 'CaptureTakeSnapshot',
+			bank: {
+				style: 'text',
+				png64: this.ICON_SNAPSHOT,
+				color: '16777215',
+				textaligment: 'center:top',
+				size: '14',
+				bgcolor: this.rgb(0, 0, 0),
+			},
+			actions: [{
+				action: 'CaptureTakeSnapshot',
+
+			}],
+			feedbacks: [{
+				type: 'InstaceBg',
+
+			}]
+
+		})
+		
+
+//-------------------------------------------------------------------------------
 		//Keypad Buttons
 		for (var i = 0; i <= 9; i++) {
 
@@ -265,10 +480,15 @@ module.exports = {
                     }
 
 				}],
+				feedbacks: [
+					{
+						type:'InstaceBg',
+					},
+				],
 
 			})
         }
-        
+//-------------------------------------------------------------------------------       
 		//Rec Button
 		presets.push({
 			category: 'KeyPad',
@@ -295,7 +515,159 @@ module.exports = {
 
 		})
 
-		//ClipPlaying
+//-------------------------------------------------------------------------------	
+		//Channel controls
+		presets.push({
+			category: 'Channels',
+			label: 'Select Channel',
+			bank: {
+				style: 'text',
+				text: '',
+				pngalignment: 'center:center',
+				png64:this.ICON_ALL,
+				textaligment: 'center:center',
+				bgcolor: this.setColor(0),
+			},
+			actions: [{
+				action: 'InstanceToControl',
+				options: {
+					InstChoise:"All",
+					ChColor: this.setColor(0),
+				}
+			}],
+			feedbacks: [{
+				type: 'ChannelColor',
+				options: {
+					InstChoise: "All"
+				}
+			}]
+
+		})
+//-------------------------------------------------------------------------------	
+		presets.push({
+			category: 'Channels',
+			label: 'Select Channel',
+			bank: {
+				style: 'text',
+				text: '',
+				pngalignment: 'center:center',
+				png64:this.ICON_1,
+				textaligment: 'center:center',
+				bgcolor: this.setColor(1),
+			},
+			actions: [{
+				action: 'InstanceToControl',
+				options: {
+					InstChoise:"1",
+					ChColor: this.setColor(1),
+				}
+			}],
+			feedbacks: [{
+				type: 'ChannelColor',
+				options: {
+					InstChoise: "1"
+				}
+			}]
+
+		})
+//-------------------------------------------------------------------------------	
+		presets.push({
+			category: 'Channels',
+			label: 'Select Channel',
+			bank: {
+				style: 'text',
+				text: '',
+				pngalignment: 'center:center',
+				png64:this.ICON_2,
+				textaligment: 'center:center',
+				bgcolor: this.setColor(2),
+			},
+			actions: [{
+				action: 'InstanceToControl',
+				options: {
+					InstChoise:"2",
+					ChColor: this.setColor(2),
+				}
+			}],
+			feedbacks: [{
+				type: 'ChannelColor',
+				options: {
+					InstChoise: "2"
+				}
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Channels',
+			label: 'Select Channel',
+			bank: {
+				style: 'text',
+				text: '',
+				pngalignment: 'center:center',
+				png64:this.ICON_3,
+				textaligment: 'center:center',
+				bgcolor: this.setColor(3),
+			},
+			actions: [{
+				action: 'InstanceToControl',
+				options: {
+					InstChoise:"3",
+					ChColor: this.setColor(3),
+				}
+			}],
+			feedbacks: [{
+				type: 'ChannelColor',
+				options: {
+					InstChoise: "3"
+				}
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Channels',
+			label: 'Select Channel',
+			bank: {
+				style: 'text',
+				text: '',
+				pngalignment: 'center:center',
+				png64:this.ICON_4,
+				textaligment: 'center:center',
+				bgcolor: this.setColor(4),
+			},
+			actions: [{
+				action: 'InstanceToControl',
+				options: {
+					InstChoise:"4",
+					ChColor: this.setColor(4),
+				}
+			}],
+			feedbacks: [{
+				type: 'ChannelColor',
+				options: {
+					InstChoise: "4"
+				}
+			}]
+
+		})
+//-------------------------------------------------------------------------------
+		presets.push({
+			category: 'Empty',
+			label: 'Empty Button',
+			bank: {
+				style: 'text',
+				text: '',
+				pngalignment: 'center:center',
+				textaligment: 'center:center',
+			},
+			actions: [{
+			}],
+			feedbacks: [{
+				type: 'InstaceBg',
+			}]
+
+		})
 
 		this.setPresetDefinitions(presets)
 	}

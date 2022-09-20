@@ -35,6 +35,7 @@ class YouPlay {
 			
 		} catch (e) {
 			console.error('Something went wrong', e)
+			return null
 		}
 		return dataJson;
 		
@@ -43,13 +44,14 @@ class YouPlay {
 	async getCaptureStatus(YPinstance) {
 
 		try {
-			url = this.getUrl(YPinstance,'BatchCaptureStatusGet', 'data')
+			url = this.getUrl(YPinstance,'GetCaptureData', 'data')
 			const response = await fetch(url)
 			const json = await response.json()
 			var dataJson = json
 
 		} catch (e) {
 			console.error('Something went wrong', e)
+			return null
 		}
 		return dataJson;
 
@@ -57,7 +59,7 @@ class YouPlay {
 
 	//returns if youplay is in recorder mode
 	async getCaptureMode(YPinstance) {
-
+		
 		url = this.getUrl(YPinstance,'IsCaptureMode', 'command')
 		const response = await fetch(url)
 		const json = await response.json()
@@ -89,7 +91,8 @@ class YouPlay {
 	}
 
 	//actions functions
-
+//----------------------------------------------------------------------
+//PLAYER APIS
 	//function made to play current clip
 	playClip(YPinstance) {
 		url = this.getUrl(YPinstance,'Play', 'command')
@@ -103,22 +106,6 @@ class YouPlay {
 	//function made to stop clip
 	StopClip(YPinstance) {
 		url = this.getUrl(YPinstance,'Stop', 'command')
-		fetch(url)
-    }
-
-	//function made to start recording
-	CaptureStart(YPinstance) {
-		url = this.getUrl(YPinstance,'CaptureStart', 'command')
-		fetch(url)
-	}
-	//function made to pause current clip
-	CaptureStop(YPinstance) {
-		url = this.getUrl(YPinstance,'CaptureStop', 'command')
-		fetch(url)
-	}
-	//function made to activate recorder switch, !NEED TO IMPLEMENT ACTION!
-	CaptureSwitch(YPinstance) {
-		url = this.getUrl(YPinstance,'CaptureSwitch', 'command')
 		fetch(url)
     }
 
@@ -142,23 +129,95 @@ class YouPlay {
 		url = this.getUrl(YPinstance,'Logo?value=' + number, 'command')
 		fetch(url)
 	}
+	//audio preview in player
+	PlayerAudioPreview(number,YPinstance) {
+		
+		url = this.getUrl(YPinstance,'PlayerAudioPreview?enabled=' + number, 'command')
+		console.log('audio '+number+ 'url '+url )
+		fetch(url)
+	}
 
 	//multi use function that activates 3 differnet settings in the Youplay interface(PlayerLoop,OneAtATime,StopToEnd)
 	switchPlayMode(mode,YPinstance) {
 		url = this.getUrl(YPinstance,'PlayMode?mode=' + mode, 'command')
 		fetch(url)
 	}
+//---------------------------------------------------------------------------------------------------------
+//RECORDER APIS
+
+	//function made to start recording
+	CaptureStart(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureStart', 'command')
+		fetch(url)
+	}
+	//function made to pause current clip
+	CaptureStop(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureStop', 'command')
+		fetch(url)
+	}
+	//function made to activate recorder switch, !NEED TO IMPLEMENT ACTION!
+	CaptureSwitch(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureSwitch', 'command')
+		fetch(url)
+    }
+	//
+	CaptureTakeSnapshot(YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureTakeSnapshot', 'command')
+		fetch(url)
+    }
+	//
+	ChangeCaptureScheduler(value,YPinstance) {
+		url = this.getUrl(YPinstance,'ChangeCaptureScheduler?enabled=' + value, 'command')
+		console.log(url)
+		fetch(url)
+	}
+	//
+	CaptureAddToPlaylist(value,YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureAddToPlaylist?value=' + value, 'command')
+		fetch(url)
+	}
+	//
+	CaptureAudioPreview(number,YPinstance) {
+		url = this.getUrl(YPinstance,'CaptureAudioPreview?enabled=' + number, 'command')
+		console.log('audio '+number+ 'url '+url )
+		fetch(url)
+	}
+
 	//switches from player to recorder mode
 	switchCaptureMode(YPinstance) {
 		url = this.getUrl(YPinstance,'SwitchCaptureMode', 'command')
 		fetch(url)
     }
+//---------------------------------------------------------------------------------------------------------
+//KEYPAD API
 	//function that plays the clip of the passed index thanks to a numerical keyboard implemented in the module
 	playNumerClip(number,YPinstance) {
-		url = this.getUrl(YPinstance,'PrepareAndPlay?clipNumber='+ number, 'command')
+		url = this.getUrl(YPinstance,'PrepareAndPlay?clipNumber='+number, 'command')
+		console.log(url)
 		fetch(url)
     }
-
+//------------------------------------------------------------------------------------
+//MARKER FUNCTIONS
+	//function that sets the mark-in in the OnAir Clip	
+	setOnAirMarkIn(YPinstance) {
+		url = this.getUrl(YPinstance,'SetOnAirMarkIn', 'command')
+		fetch(url)
+    }
+	//function that sets the mark-out in the OnAir Clip	
+	setOnAirMarkOut(YPinstance) {
+		url = this.getUrl(YPinstance,'SetOnAirMarkOut', 'command')
+		fetch(url)
+    }
+	//function that applies the marker
+	applyOnAirMarkers(YPinstance) {
+		url = this.getUrl(YPinstance,'ApplyOnAirMarkers', 'command')
+		fetch(url)
+    }
+	//function that resets the marker
+	resetOnAirMarkers(YPinstance) {
+		url = this.getUrl(YPinstance,'ResetOnAirMarkers', 'command')
+		fetch(url)
+    }
 }
 
 module.exports = YouPlay;

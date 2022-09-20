@@ -6,7 +6,6 @@ module.exports = {
 
     InstanceToControl(instance){
         this.YPinstance = instance
-        console.log(instance)
     },
 
     //Play/pause function that uses the player status to define which action to run 
@@ -45,17 +44,9 @@ module.exports = {
 
 
     //swich Play Mode
-    async switchPlayMode(YPinstance) {
+    async switchPlayMode(mode,YPinstance) {
         if (!this.PlayerInfo[YPinstance-1].CaptureMode) {
-            mode = 0
-            if (this.PlayerInfo[YPinstance-1].PlayerStartToEnd) {
-                mode=1
-                
-            } else if (this.PlayerInfo[YPinstance-1].PlayerOneAtATime) {
-                mode=2
-            } else {
-                mode = 0
-            }
+            
             this.GetApi.switchPlayMode(mode,YPinstance)
         }
     },
@@ -80,6 +71,44 @@ module.exports = {
         }
     },
 
+    async PlayerAudioPreview(YPinstance) {
+        if (!this.PlayerInfo[YPinstance-1].CaptureMode) {
+            if (this.PlayerInfo[YPinstance-1].PlayerAudioPreviewEnabled) {
+                this.GetApi.PlayerAudioPreview(0,YPinstance)
+            } else {
+                this.GetApi.PlayerAudioPreview(1,YPinstance)
+            }
+        }
+    },
+    
+    async CaptureAudioPreview(YPinstance) {
+        if (this.PlayerInfo[YPinstance-1].CaptureMode) {
+            if (this.RecorderInfo[YPinstance-1].AudioPreviewEnabled) {
+                this.GetApi.CaptureAudioPreview(0,YPinstance)
+            } else {
+                this.GetApi.CaptureAudioPreview(1,YPinstance)
+            }
+        }
+    },
+    async CaptureAddToPlaylist(YPinstance) {
+        if (this.PlayerInfo[YPinstance-1].CaptureMode) {
+            if (this.RecorderInfo[YPinstance-1].AddToThePlaylist) {
+                this.GetApi.CaptureAddToPlaylist(0,YPinstance)
+            } else {
+                this.GetApi.CaptureAddToPlaylist(1,YPinstance)
+            }
+        }
+    },
+    async ChangeCaptureScheduler(YPinstance) {
+        if (this.PlayerInfo[YPinstance-1].CaptureMode) {
+            if (this.RecorderInfo[YPinstance-1].ScheduleEnabled) {
+                this.GetApi.ChangeCaptureScheduler(0,YPinstance)
+            } else {
+                this.GetApi.ChangeCaptureScheduler(1,YPinstance)
+            }
+        }
+    },
+
 
     //switch capture mode
     async switchCaptureMode(YPinstance) {
@@ -95,6 +124,14 @@ module.exports = {
             }
         }
     },
+
+    async CaptureTakeSnapshot(YPinstance) {
+        if (this.PlayerInfo[YPinstance-1].CaptureMode) {
+            this.GetApi.CaptureTakeSnapshot(YPinstance)
+        }
+        
+    },
+
 	//function made to pause current clip
 
     async CaptureSwitch(YPinstance) {
@@ -106,17 +143,36 @@ module.exports = {
 
     async playNumerClip(number,YPinstance) {
 
-        var num = Number(number) 
-
-        if(!this.PlayerInfo[YPinstance-1].CaptureMode) {
-
-            if (num != 0) {
-                this.GetApi.playNumerClip(num-1,YPinstance)
+        //var num = Number(number) 
+        console.log('n'+number)
+        
+            if (number != 0) {
+                this.GetApi.playNumerClip(number-1,YPinstance)
             }
+        
 
+    },
+
+    async setOnAirMarkIn(YPinstance) {
+        if (!this.PlayerInfo[YPinstance-1].CaptureMode) {
+            this.GetApi.setOnAirMarkIn(YPinstance)
         }
-
-    }
+    },
+    async setOnAirMarkOut(YPinstance) {
+        if (!this.PlayerInfo[YPinstance-1].CaptureMode) {
+            this.GetApi.setOnAirMarkOut(YPinstance)
+        }
+    },
+    async applyOnAirMarkers(YPinstance) {
+        if (!this.PlayerInfo[YPinstance-1].CaptureMode) {
+            this.GetApi.applyOnAirMarkers(YPinstance)
+        }
+    },
+    async resetOnAirMarkers(YPinstance) {
+        if (!this.PlayerInfo[YPinstance-1].CaptureMode) {
+            this.GetApi.resetOnAirMarkers(YPinstance)
+        }
+    },
 
 
 }

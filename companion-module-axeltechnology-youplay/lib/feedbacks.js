@@ -1,4 +1,4 @@
-const { ICON_STE, ICON_OAAT, ICON_LOOP,ICON_PLAY,ICON_STOP} = require("../icons/icons")
+const { ICON_NOT_REC,ICON_REC,ICON_PLAY,ICON_STOP} = require("../icons/icons")
 
 /**/
 module.exports = {
@@ -15,11 +15,11 @@ module.exports = {
 			}else{
 				if (this.PlayerInfo[this.YPinstance-1].PlayerStatus == 2) {
 				return {
-					png64: ICON_PLAY,
+					png64: ICON_STOP,
 				}
 				} else if (this.PlayerInfo[this.YPinstance-1].PlayerStatus == 1) {
 				return {
-					png64: ICON_STOP,
+					png64: ICON_PLAY,
 				}
 			} 
 		}
@@ -39,17 +39,46 @@ module.exports = {
 
 		}).bind(this)
 
+
+		var ChannelColor = (function (feedback) {
+
+			if(feedback.options.InstChoise!=this.YPinstance){
+				return{
+					bgcolor: this.rgb(64,64,64)
+				}
+
+			}else if(feedback.options.InstChoise == "All"){
+				return{
+					bgcolor: this.bgColor[0]
+				}
+			}else{
+				return{
+					bgcolor: this.bgColor[feedback.options.InstChoise]
+				}
+			}
+
+		}).bind(this)
+
+
+		
 		//changes mode button color and text depending on player status
 		var ModeChangeCallBack = (function (feedback) {
 
-			if (this.PlayerInfo.CaptureMode) {
+			if(this.YPinstance=="All"){
 				return {
-					bgcolor: feedback.options.RC,		
+					bgcolor: this.bgColor[0],		
+					text: "Mode //n switcher" ,
+				}
+			}
+
+			if (this.PlayerInfo[this.YPinstance-1].CaptureMode) {
+				return {
+					bgcolor: this.bgColor[this.YPinstance],		
 					text: feedback.options.Rtext ,
 				}
 			} else {
 				return {
-					bgcolor: feedback.options.PC,
+					bgcolor: this.rgb(64,64,64),
 					text: feedback.options.Ptext 
 				}
 			}
@@ -59,48 +88,47 @@ module.exports = {
 		//changes icon and color of a button depending on the play mode status
 		
 		var PlayModeCallBack = (function (feedback) {
+				var mode = 4
+				if(this.YPinstance=="All"){
+					return {
+						bgcolor: this.bgColor[0],
+						
+					}
+				}
 
-			if (this.PlayerInfo.PlayerStartToEnd) {
-				return { bgcolor: feedback.options.bg1,
-							png64: ICON_STE		
-						}
-			} else if (this.PlayerInfo.PlayerOneAtATime) {
-				return { bgcolor: feedback.options.bg2,
-							png64: ICON_OAAT		
-						}
-			}else{
-				return { bgcolor: feedback.options.bg3,
-							png64: ICON_LOOP		
-						}
+				if (this.PlayerInfo[this.YPinstance-1].PlayerStartToEnd) {
+
+					mode = 0
+				} else if (this.PlayerInfo[this.YPinstance-1].PlayerOneAtATime) {
+					mode = 1
+				} else if(this.PlayerInfo[this.YPinstance-1].PlayerLoop){
+					mode = 2
+				}
+			
+			if (mode == feedback.options.ModeChoise) {
+				return { bgcolor: this.bgColor[this.YPinstance] }
+			} else {
+				return { bgcolor: this.rgb(64,64,64)}
 			}
 
 		}).bind(this)
 
 		var recstopCallBack = (function (feedback) {
 
-			var recTotD = ''
-			if (feedback.options.Stime) {
-				recTotD = this.setTimeStringRecorder(this.RecorderInfo.Duration)
-			}
+			if(this.YPinstance=="All"){
+				return {bgcolor: this.bgColor[0],png64:ICON_REC}
 
-
-			if (!this.PlayerInfo.CaptureMode) {
-				return {
-					bgcolor: feedback.options.PC,
-					text: feedback.options.Ptext,
-                }
-
-			}else if (this.RecorderInfo.CaptureState == 2) {
+			}else if (this.RecorderInfo[this.YPinstance-1].CaptureState == 2) {
 				return {
 
-					bgcolor: feedback.options.RC,
-					text: feedback.options.Rtext + '\\n' + recTotD,
+					bgcolor: this.bgColor[this.YPinstance],
+					png64:ICON_REC
 
 				}
 			} else {
 				return {
-					bgcolor: feedback.options.SC,
-					text: feedback.options.Stext + '\\n' + recTotD,
+					bgcolor: this.rgb(64,64,64),
+					png64:ICON_NOT_REC,
 				}
 			}
 
@@ -109,23 +137,113 @@ module.exports = {
 
 		var mixerCallback = (function (feedback) {
 
-				if (this.PlayerInfo.PlayerMixerEnabled) {
-					return true
+				if(this.YPinstance=="All"){
+					return{
+						bgcolor: this.bgColor[0]
+					}
+				}else if (this.PlayerInfo[this.YPinstance-1].PlayerMixerEnabled) {
+					return{
+						bgcolor: this.bgColor[this.YPinstance]
+					}
 				} else {
-					return false
+					return{
+						bgcolor: this.rgb(64,64,64)
+					}
 				}
 
 		}).bind(this)
 
 		var CgCallback = (function (feedback) {
 
-			if (this.PlayerInfo.PlayerLogoEnabled) {
-				return true
+				if(this.YPinstance=="All"){
+					return{
+						bgcolor: this.bgColor[0]
+					}
+				}else if (this.PlayerInfo[this.YPinstance-1].PlayerLogoEnabled) {
+					return{
+						bgcolor: this.bgColor[this.YPinstance]
+					}
+				} else {
+					return{
+						bgcolor: this.rgb(64,64,64)
+					}
+				}
+
+		}).bind(this)
+
+		var PlayerAudioPreviewCallback = (function (feedback) {
+
+			if(this.YPinstance=="All"){
+				return{
+					bgcolor: this.bgColor[0]
+				}
+			}else if (this.PlayerInfo[this.YPinstance-1].PlayerAudioPreviewEnabled) {
+				return{
+					bgcolor: this.bgColor[this.YPinstance]
+				}
 			} else {
-				return false
+				return{
+					bgcolor: this.rgb(64,64,64)
+				}
 			}
 
 		}).bind(this)
+
+		var CaptureAudioPreviewCallback = (function (feedback) {
+
+			if(this.YPinstance=="All"){
+				return{
+					bgcolor: this.bgColor[0]
+				}
+			}else if (this.RecorderInfo[this.YPinstance-1].AudioPreviewEnabled) {
+				return{
+					bgcolor: this.bgColor[this.YPinstance]
+				}
+			} else {
+				return{
+					bgcolor: this.rgb(64,64,64)
+				}
+			}
+
+		}).bind(this)
+
+		var CaptureAddToPlaylistCallback = (function (feedback) {
+
+			if(this.YPinstance=="All"){
+				return{
+					bgcolor: this.bgColor[0]
+				}
+			}else if (this.RecorderInfo[this.YPinstance-1].AddToThePlaylist) {
+				return{
+					bgcolor: this.bgColor[this.YPinstance]
+				}
+			} else {
+				return{
+					bgcolor: this.rgb(64,64,64)
+				}
+			}
+
+		}).bind(this)
+
+		var ChangeCaptureSchedulerCallback = (function (feedback) {
+
+			if(this.YPinstance=="All"){
+				return{
+					bgcolor: this.bgColor[0]
+				}
+			}else if (this.RecorderInfo[this.YPinstance-1].ScheduleEnabled) {
+				return{
+					bgcolor: this.bgColor[this.YPinstance]
+				}
+			} else {
+				return{
+					bgcolor: this.rgb(64,64,64)
+				}
+			}
+
+		}).bind(this)
+
+
 
 		var ClipToPlayCallback = (function (feedback) {
 			var CTP = this.KeyPad.ClipToPlay;
@@ -155,6 +273,29 @@ module.exports = {
 			callback: InstaceBg
 		},
 
+		feedbacks['ChannelColor'] = {
+			type: 'advanced',
+			label: 'Change channel button background depending on setting',
+			description: 'Change button background depending on instance',
+			options: [{
+				type: 'dropdown',
+				label: 'which Instance',
+				id: 'InstChoise',
+				default: '1',
+				tooltip: 'Which instance?',
+				choices: [
+					{ id: '1', label: '1' },
+					{ id: '2', label: '2' },
+					{ id: '3', label: '3' },
+					{ id: '4', label: '4' },
+					{ id: 'All', label: 'All' },
+				],
+			}],
+
+			callback: ChannelColor
+		},
+
+
 		//called in the mode switcher
 		feedbacks['ModeChange'] = {
 
@@ -163,28 +304,16 @@ module.exports = {
 				description: 'Button changes depending on the youPlay instance status ',
 				options: [
 					{
-						type: 'colorpicker',
-						label: 'Player color',
-						id: 'PC',
-						default: this.rgb(0, 0, 255)
-					},
-					{
-						type: 'colorpicker',
-						label: 'Recorder color',
-						id: 'RC',
-						default: this.rgb(255, 0, 0)
-					},
-					{
 						type: 'textinput',
 						label: 'Player Text',
 						id: 'Ptext',
-						default: 'Player \\n Mode'
+						default: 'Player'
 					},
 					{
 						type: 'textinput',
 						label: 'Recorder Text',
 						id: 'Rtext',
-						default: 'Recorder \\n Mode'
+						default: 'Recorder'
 					},
 				],
 
@@ -198,25 +327,19 @@ module.exports = {
 				label: 'Changes button color when Player has the same mode as the button',
 				description: 'When the player mode(Start to end,one at  time, loop) equals the one set in the feedback, the color changes',
 				options: [
-				{
-					type: 'colorpicker',
-					label: 'Background color',
-					id: 'bg1',
-					default: this.rgb(255, 0, 0)
-				},
-				{
-					type: 'colorpicker',
-					label: 'Background color',
-					id: 'bg2',
-					default: this.rgb(0, 225, 0)
-				},
-				{
-					type: 'colorpicker',
-					label: 'Background color',
-					id: 'bg3',
-					default: this.rgb(0, 0, 225)
-				}
-				],
+					{
+						type: 'dropdown',
+						label: 'which Mode',
+						id: 'ModeChoise',
+						default: '1',
+						tooltip: 'Which Mode?',
+						choices: [
+							{ id: '0', label: 'Start to End' },
+							{ id: '1', label: 'One at a time' },
+							{ id: '2', label: 'Loop' },
+						],
+	
+					}],
 
 				callback: PlayModeCallBack
 			}
@@ -226,84 +349,63 @@ module.exports = {
 			type: 'advanced',
 			label: 'Change bar Status when recording',
 			description: 'When recording a clip background and clip duration will be changed',
-			options: [
-				{
-
-					type: 'colorpicker',
-					label: 'recording color',
-					id: 'RC',
-					default: this.rgb(255, 0, 0)
-
-				},
-				{
-
-					type: 'colorpicker',
-					label: 'stopped color',
-					id: 'SC',
-					default: this.rgb(0, 0, 0)
-
-				},
-				{
-
-					type: 'colorpicker',
-					label: 'Player color',
-					id: 'PC',
-					default: this.rgb(0, 0, 255)
-
-				},
-				{
-					type: 'textinput',
-					label: 'Recording Text',
-					id: 'Rtext',
-					default: 'Recordin'
-				},
-				{
-					type: 'textinput',
-					label: 'Stopped text',
-					id: 'Stext',
-					default: 'stopped'
-				},
-				{
-					type: 'textinput',
-					label: 'Player text',
-					id: 'Ptext',
-					default: 'player'
-				},
-				{
-					type: 'checkbox',
-					label: 'ShowTime',
-					id: 'Stime',
-					default: true
-				},
-			],
+			
 			callback: recstopCallBack
 		}
 
 		//called in the mixer button
 		feedbacks['Mixer'] = {
 
-			type: 'boolean',
+			type: 'advanced',
 			label: 'Mixer Color',
 			description: 'Button changes depending on the youPlay mixer status ',
-			style: {
-
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0)
-			},
+			
 			callback: mixerCallback
 		},
 			//called in the CG button
 			feedbacks['LogoCg'] = {
 
-				type: 'boolean',
+				type: 'advanced',
 				label: 'Cg Color',
 				description: 'Button changes depending on the youPlay Cg status ',
-				style: {
-
-					color: this.rgb(255, 255, 255),
-					bgcolor: this.rgb(0, 0, 0)
-				},
+				
 				callback: CgCallback
+			},
+
+			feedbacks['PlayerAudioPreview'] = {
+
+				type: 'advanced',
+				label: 'Cg Color',
+				description: 'Button changes depending on the the player audio preview status ',
+				
+				callback: PlayerAudioPreviewCallback
+			},
+
+			feedbacks['CaptureAudioPreview'] = {
+
+				type: 'advanced',
+				label: 'CaptureAudioPreview',
+				description: 'Button changes depending on the recorder audio preview status ',
+				
+				callback: CaptureAudioPreviewCallback
+			},
+
+			feedbacks['CaptureAddToPlaylist'] = {
+
+				type: 'advanced',
+				label: 'Capture Add To Playlist',
+				description: 'Button changes depending on the recorder add to playlist status ',
+				
+				callback: CaptureAddToPlaylistCallback
+			},
+
+			feedbacks['ChangeCaptureScheduler'] = {
+
+				type: 'advanced',
+				label: 'Change Capture Scheduler',
+				description: 'Button changes depending on the recorder schedule status ',
+				
+				callback: ChangeCaptureSchedulerCallback
 			},
 
 			//wanted to make feedback for keypad playclip button

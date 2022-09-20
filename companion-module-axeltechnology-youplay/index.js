@@ -10,7 +10,6 @@ const YouPlay = require('./lib/youPlay')
 const PlayerInfo = require('./lib/playerInfo')
 const RecorderInfo = require('./lib/recorderInfo')
 const Keypad = require('./lib/keypad')
-const Color = require('./lib/color')
 
 //companion visualized elements
 const actions = require('./lib/actions')
@@ -20,6 +19,7 @@ const presets = require('./lib/presets')
 const feedbacks = require('./lib/feedbacks')
 const variables = require('./lib/variables')
 const configs = require('./lib/configs')
+const { set } = require('lodash')
 
 
 //Main Code
@@ -28,10 +28,18 @@ class YouPlayInstance extends instance_skel {
 	//value used in the keypad reset timeout, used to prevent multiple timeouts to be created
 	interval = 0
 	YPinstance = 1
+	bgColor = []
+	
 
 	//Constructor
 	constructor(system, id, config) {
 		super(system, id, config)
+
+			this.bgColor[0]=15761408
+			this.bgColor[1]=33008
+			this.bgColor[2]=4245504
+			this.bgColor[3]=15745088
+			this.bgColor[4]=14448860
 
 		//assign const variables to the class, this way you can use their function/classes whit this.VARIABLE/FUNCTION
 		Object.assign(this, {
@@ -52,7 +60,6 @@ class YouPlayInstance extends instance_skel {
 	init() {
 		this.inityouplay(this.config,this.YPinstance)
 		this.initVarPresFeed()
-		this.SetProgressArray()
 	}
 
 	//Companion function called when instance configurations are saved
@@ -103,12 +110,7 @@ class YouPlayInstance extends instance_skel {
 			//instance KeyPad
 			this.KeyPad = new Keypad()
 			//page background colors
-			this.bgColor = []
-			this.bgColor[0]=15761408
-			this.bgColor[1]=33008
-			this.bgColor[2]=4245504
-			this.bgColor[3]=15745088
-			this.bgColor[4]=14448860
+			
 			
 			//Get Connection status from Api
 			let res = await this.GetApi.Connect(this.YPinstance)
@@ -193,7 +195,11 @@ class YouPlayInstance extends instance_skel {
 	}
 
 	saveColor(color,index){
-		this.bgColor[index] = color
+		if(index=="All"){
+			this.bgColor[0] = color
+		}else{
+			this.bgColor[index] = color
+		}
 	}
 
 	setColor(index){
@@ -205,23 +211,34 @@ class YouPlayInstance extends instance_skel {
 	async changeVariable() {
 		//check if youplay is in player or recorder mode
 		for(var i=0;i<4;i++){
-			//console.log(i)
-			await this.PlayerInfo[i].PlayerDataStatus(i+1)
-			//this.PlayerInfo[i].ShowPlayerData()
-			if (this.PlayerInfo[i].CaptureMode) {
-				//recorder mode
-				this.RecorderInfo[i].RecorderDataStatus(i+1)
-															
-				this.setVariable('CTime_Left', 'recording')
-			} else {
-				/*
-				this.setVariable('CTime_Left', this.setTimeString(this.PlayerInfo[i].OnAirRemain))	
-				this.setVariable('CTP',this.KeyPad.ClipToPlay)
-				*/
-				this.checkFeedbacks('Play/Pause')	
-				this.checkFeedbacks('InstaceBg')
-			}
 			
+			//console.log(await this.PlayerInfo[i].PlayerDataStatus(i+1))
+			if(await this.PlayerInfo[i].PlayerDataStatus(i+1)!=null){
+
+				await this.PlayerInfo[i].IsCapture(i+1)
+
+				if (this.PlayerInfo[i].CaptureMode) {
+					//recorder mode
+					await this.RecorderInfo[i].RecorderDataStatus(i+1)
+					
+					
+					this.setVariable('CTime_Left', 'recording')
+				}
+			}
+			this.checkFeedbacks('ChannelColor')
+			this.checkFeedbacks('InstaceBg')
+			this.checkFeedbacks('Play/Pause')
+			this.checkFeedbacks('ClipPlaying')
+			this.setVariable('CTP',this.KeyPad.ClipToPlay)
+			this.checkFeedbacks('Mixer')
+			this.checkFeedbacks('LogoCg')
+			this.checkFeedbacks('STE/OAAT/LOOP')
+			this.checkFeedbacks('ModeChange')
+			this.checkFeedbacks('PlayerAudioPreview')
+			this.checkFeedbacks('CaptureAudioPreview')
+			this.checkFeedbacks('CaptureAddToPlaylist')
+			this.checkFeedbacks('ChangeCaptureScheduler')
+			this.checkFeedbacks('Rec/Stop')
 		}
 		
 		
@@ -249,11 +266,8 @@ class YouPlayInstance extends instance_skel {
 		switch (action) {
 //---------------------------------------------------------------------------------
 			case 'InstanceToControl':{
-				console.log(options.ChColor)
 				this.InstanceToControl(options.InstChoise)
-
-				//options.ChColor=this.setColor(options.InstChoise)
-				//console.log(options.ChColor)
+				this.saveColor(options.ChColor,options.InstChoise)
 			}
 			break;
 //---------------------------------------------------------------------------------
@@ -291,10 +305,10 @@ class YouPlayInstance extends instance_skel {
 			case 'switchPlayMode':
 				if(this.checkYPInstance()){
 					for(var i=0;i<=4;i++){
-						this.switchPlayMode(i)
+						this.switchPlayMode(options.ModeChoise,i)
 					}
 				}else{
-					this.switchPlayMode(this.YPinstance)
+					this.switchPlayMode(options.ModeChoise,this.YPinstance)
 				}
 				break;
 //-------------------------------------------------------------------------------
@@ -308,7 +322,7 @@ class YouPlayInstance extends instance_skel {
 				}
 				break;
 //-------------------------------------------------------------------------------
-			case 'CaptureStart_Stop':
+			case 'CaptureStart':
 				if(this.checkYPInstance()){
 					for(var i=0;i<=4;i++){
 						this.CaptureStart(i)
@@ -325,6 +339,17 @@ class YouPlayInstance extends instance_skel {
 					}
 				}else{
 					this.CaptureSwitch(this.YPinstance)
+				}
+				break;
+
+//-------------------------------------------------------------------------------
+			case 'switchCaptureMode':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.switchCaptureMode(i)
+					}
+				}else{
+					this.switchCaptureMode(this.YPinstance)
 				}
 				break;
 //-------------------------------------------------------------------------------
@@ -358,20 +383,108 @@ class YouPlayInstance extends instance_skel {
 				}
 				break;
 //-------------------------------------------------------------------------------
+			case 'PlayerAudioPreview':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.PlayerAudioPreview(i)
+					}
+				}else{
+					this.PlayerAudioPreview(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------			
+			case 'CaptureAudioPreview':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.CaptureAudioPreview(i)
+					}
+				}else{
+					this.CaptureAudioPreview(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------			
+			case 'CaptureAddToPlaylist':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.CaptureAddToPlaylist(i)
+					}
+				}else{
+					this.CaptureAddToPlaylist(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------			
+			case 'ChangeCaptureScheduler':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.ChangeCaptureScheduler(i)
+					}
+				}else{
+					this.ChangeCaptureScheduler(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------			
+			case 'CaptureTakeSnapshot':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.CaptureTakeSnapshot(i)
+					}
+				}else{
+					this.CaptureTakeSnapshot(this.YPinstance)
+				}
+				break;
+//-------------------------------------------------------------------------------
 			case 'addNumber':
 				this.KeyPad.keypress(options.NumChoise,this.YPinstance)
 				if (this.interval == 0) {
-					this.ClipTM = setTimeout(function () { this.KeyPad.reset(), this.interval= 0 }.bind(this), 2500)
+					this.ClipTM = setTimeout(function () { this.KeyPad.reset(), this.interval= 0 }.bind(this), 3000)
 					this.interval =1 
 				}
 				break;
 //-------------------------------------------------------------------------------
 			case 'playNumerClip':
 				this.playNumerClip(this.KeyPad.ClipToPlay,this.YPinstance)
-				clearInterval(this.ClipTM)
-				this.KeyPad.reset()
-				this.interval =0
+				
 				break;
+//-------------------------------------------------------------------------------
+			case 'setOnAirMarkIn':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.setOnAirMarkIn(i)
+					}
+				}else{
+					this.setOnAirMarkIn(this.YPinstance)
+				}
+
+			break;
+//-------------------------------------------------------------------------------
+			case 'setOnAirMarkOut':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.setOnAirMarkOut(i)
+					}
+				}else{
+					this.setOnAirMarkOut(this.YPinstance)
+				}
+//-------------------------------------------------------------------------------
+			case 'applyOnAirMarkers':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.applyOnAirMarkers(i)
+					}
+				}else{
+					this.applyOnAirMarkers(this.YPinstance)
+				}
+			break;
+//-------------------------------------------------------------------------------
+			case 'resetOnAirMarkers':
+				if(this.checkYPInstance()){
+					for(var i=0;i<=4;i++){
+						this.resetOnAirMarkers(i)
+					}
+				}else{
+					this.resetOnAirMarkers(this.YPinstance)
+				}
+			break;
 //-------------------------------------------------------------------------------
 			default:
 				return

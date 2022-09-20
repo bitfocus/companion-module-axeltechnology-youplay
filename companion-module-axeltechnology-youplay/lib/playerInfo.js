@@ -5,7 +5,7 @@ class PlayerInfo {
 	OnAirUniqueID=0
 	OnAirRemain = 0
 	PlayerStatus=0
-	PlayerLoop=true
+	PlayerLoop=false
 	PlayerOneAtATime=false
 	PlayerStartToEnd=false
 	OnAirDuration=0
@@ -13,6 +13,7 @@ class PlayerInfo {
 	CaptureMode = false
 	PlayerMixerEnabled = false
 	PlayerLogoEnabled =false
+	PlayerAudioPreviewEnabled = false
 
 	//consturctor, here getData will have a YouPlay obj to get a Json
 	constructor(api) {
@@ -22,19 +23,26 @@ class PlayerInfo {
 
 	//function that updates the local variables whit the Json data recived from the YouPlay class
 	async PlayerDataStatus(instance) {
-		this.data = await this.getData.getPlayerStatus(instance)
-		this.Instance = instance
-		this.PlayerStatus = this.data['PlayerStatus']
-		this.PlayerLoop = this.data['PlayerLoop']
-		this.PlayerOneAtATime = this.data['PlayerOneAtATime']
-		this.PlayerStartToEnd = this.data['PlayerStartToEnd']
-		this.OnAirDuration = this.data['OnAirDuration']
-		this.OnAirPosition = this.data['OnAirPosition']
-		this.OnAirRemain = this.data['OnAirRemain']
-		this.OnAirUniqueID = this.data['OnAirUniqueID']
-		this.PlayerMixerEnabled = this.data['PlayerMixerEnabled']
-		this.PlayerLogoEnabled = this.data['PlayerLogoEnabled']
 
+		this.data = await this.getData.getPlayerStatus(instance)
+		if(this.data==null){
+		
+		}else{
+
+			this.Instance = instance
+			this.PlayerStatus = this.data['PlayerStatus']
+			this.PlayerLoop = this.data['PlayerLoop']
+			this.PlayerOneAtATime = this.data['PlayerOneAtATime']
+			this.PlayerStartToEnd = this.data['PlayerStartToEnd']
+			this.OnAirDuration = this.data['OnAirDuration']
+			this.OnAirPosition = this.data['OnAirPosition']
+			this.OnAirRemain = this.data['OnAirRemain']
+			this.OnAirUniqueID = this.data['OnAirUniqueID']
+			this.PlayerMixerEnabled = this.data['PlayerMixerEnabled']
+			this.PlayerLogoEnabled = this.data['PlayerLogoEnabled']
+			this.PlayerAudioPreviewEnabled = this.data['PlayerAudioPreviewEnabled']
+		}
+		return this.data
 	}
 	//function made to check youplay state 
 	async IsCapture(instance) {

@@ -10,7 +10,6 @@ class Keypad {
 
 		this.ClipToPlay += ''+ index
 
-		this.myVar
 	}
 
 	//reset value function
