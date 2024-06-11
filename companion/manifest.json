@@ -1,0 +1,31 @@
+{
+	"id": "axeltechnology-youplay",
+	"name": "axeltechnology-youplay",
+	"shortname": "youplay",
+	"description": "Module made to work with YouPlay",
+	"version": "1.0.0",
+	"license": "MIT",
+    "repository": "git+https://github.com/bitfocus/companion-module-axeltechnology-youplay.git",
+    "bugs": "https://github.com/bitfocus/companion-module-axeltechnology-youplay/issues",
+	"maintainers": [
+		{
+			"name": "Axel Dev Team",
+			"email": "development@axeltechnology.com"
+		}
+	],
+    "legacyIds": ["youplay"],
+	"runtime": {
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../index.js"
+	},
+	"manufacturer": "Axel Technology",
+	"products": ["youplay"],
+	"keywords": [
+        "axel",
+        "youplay",
+        "you",
+        "play"
+      ]
+}
