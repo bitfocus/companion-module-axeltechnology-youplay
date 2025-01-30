@@ -60,7 +60,7 @@ class YouPlayInstance extends InstanceBase
 					type: 'textinput',
 					id: 'youPlayIp',
 					label: 'YouPlay IP ',
-					default: '192.168.99.25',
+					default: '',
 					width: 12,
 					tooltip: 'Write down the IP on which YouPlay is currently running',
 					required: true
@@ -70,7 +70,7 @@ class YouPlayInstance extends InstanceBase
 					id: 'ipPort',
 					label: 'port ',
 					width: 12,
-					default: '8090',
+					default: '',
 					tooltip: 'Write down the port you intend to use',
 					required: true
 				},
@@ -110,9 +110,9 @@ class YouPlayInstance extends InstanceBase
 		this.updatePresets()// export presets
 		this.updateFeedbacks() // export feedbacks
 		this.initClasses(this.config)// initialize classes
-		this.initPolling() // initialize polling
+		this.initConnectionChecker(this.config) // initialize polling
 		this.initFastPolling(); // initialize feedback line
-		await this.checkConnectionStatus(config) // check connection status
+		//await this.checkConnectionStatus(config) // check connection status
 	}
 	//------------------------------------------------------------------------------------------------
 	//  initialize connection with the GetApi, PlayerInfo and KeyPad
@@ -142,82 +142,84 @@ class YouPlayInstance extends InstanceBase
 	//------------------------------------------------------------------------------------------------
 	//  This function is fundamental to determine if the machine that the user set in the configs is
 	//  avaiable and running, it will return an appropriate status dependig on the response
-	//  if connection is established, creates status clocks, that will keep running until either
-	//  connection is destroyed or machine gets disconnected
+	//  if connection is established, creates status clocks, that will keep running until 
+	//  connection is destroyed, when all instances disconnect it will keep checking (dynamic connection/disconnection)
 	//------------------------------------------------------------------------------------------------
-
-	async checkConnectionStatus(config) 
-	{
-		if (!config.youPlayIp || !config.ipPort) 
-		{
+	async checkConnectionStatus(config, withRetry = false) {
+		if (!config.youPlayIp || !config.ipPort) {
 			this.log("warn", "No configuration");
 			this.updateStatus(InstanceStatus.ConnectionFailure, 'No configuration');
 			return;
 		}
-
-		let retryDelay = 1000; // Start with 1 second
+	
+		if (this.polling) {
+			this.stopPolling(); // Stop any existing polling before restarting
+		}
+	
+		let retryDelay = 5000; // Start with 5 seconds
 		const maxDelay = 60000; // Max delay of 1 minute
-
-		const connectAndSetup = async () => 
-		{
-			try 
-			{
+	
+		const pollAndRetry = async () => {
+			try {
 				const isConnected = await this.connectAllInstances();
-				if (isConnected) 
-				{
+				if (isConnected) {
 					this.updateStatus(InstanceStatus.Ok);
-					retryDelay = 1000; // Reset retry delay on successful connection
-				} 
-				else 
-				{
-					this.log('error', 'Connection failed. Retrying...');
-					this.updateStatus(InstanceStatus.ConnectionFailure, 'Connection failed');
-					
-					retryDelay = Math.min(retryDelay * 2, maxDelay);
-					setTimeout(connectAndSetup, retryDelay);
+					retryDelay = 5000; // Reset retry delay on success
+				} else {
+					this.updateStatus(InstanceStatus.ConnectionFailure, 'Failed to connect');
+					if (withRetry) {
+						this.log('warn', 'Connection failed. Retrying...');
+						retryDelay = Math.min(retryDelay * 2, maxDelay);
+						this.polling = setTimeout(pollAndRetry, retryDelay);
+						return; // Prevent scheduling the next poll
+					}
 				}
-			} 
-			catch (error) 
-			{
-				console.error(error)
-				this.log('error', 'Error during connection attempt: ' + error);
-				
-				retryDelay = Math.min(retryDelay * 2, maxDelay);
-				setTimeout(connectAndSetup, retryDelay);
+			} catch (error) {
+				this.updateStatus(InstanceStatus.ConnectionFailure, error.message);
+				if (withRetry) {
+					this.log('error', `Error during connection attempt: ${error.message || error}`);
+					retryDelay = Math.min(retryDelay * 2, maxDelay);
+					this.polling = setTimeout(pollAndRetry, retryDelay);
+					return; // Prevent scheduling the next poll
+				}
+			} finally {
+				if (withRetry) {
+					this.polling = setTimeout(() => pollAndRetry(), 5000); // Ensure only one polling instance
+				}
 			}
 		};
-
-		await connectAndSetup();
+	
+		this.polling = setTimeout(pollAndRetry, 0); // Start polling
 	}
-
+	
+	//------------------------------------------------------------------------------------------------
 	async connectAllInstances() {
 		const instances = [1, 2, 3, 4];
-		this.activeInstances = [];
-	
-		for (const instance of instances) 
-		{
-			this.log('info', 'Connecting to YouPlay instance '+ instance);
-
-			const result = await this.connectionManager(instance);
-			this.activeInstances.push(result);
-		}
-	
+		this.log('info', 'Starting connections to instances');
+		const results = await Promise.all(
+			instances.map(instance => this.connectionManager(instance))
+		);
+		this.activeInstances = results;
 		// Check if at least one instance is connected
-		return this.activeInstances.some(status => status === true);
+		return results.some(status => status === true);
 	}
-
 	//------------------------------------------------------------------------------------------------
-	async connectionManager(instance) 
-	{
+	async connectionManager(instance) {
 		try {
-			const res = await this.GetApi.Connect(instance)
-			this.log('info', 'Connection status for instance ' + instance + ': ' + res);
+			const timeout = 5000; // 5 seconds
+			const res = await Promise.race([
+				this.GetApi.Connect(instance),
+				new Promise((_, reject) =>
+					setTimeout(() => reject(new Error('Request timed out')), timeout)
+				),
+			]);
+			this.log('info', `Connection status for instance ${instance}: ${res}`);
 			return res;
 		} catch (error) {
-			this.log('error', 'API connection error for instance ' + instance + ': ' + error);
+			this.log('error', `API connection error for instance ${instance}: ${error.message || error}`);
 			return false;
 		}
-	}
+	}	
 	//------------------------------------------------------------------------------------------------
 	//  internal function called when module is alredy added but the configuration got changed
 	//  we need to reinitialize classes,connection status, and all actions
@@ -233,7 +235,7 @@ class YouPlayInstance extends InstanceBase
 		this.updateFeedbacks() // export feedbacks
 
 		this.initClasses(config)
-		this.initPolling() // reinitialize polling
+		this.initConnectionChecker(config,true) // reinitialize polling
 		await this.checkConnectionStatus(config) // check connection status
 	}
 	//------------------------------------------------------------------------------------------------
@@ -245,34 +247,21 @@ class YouPlayInstance extends InstanceBase
 		this.stopPolling()
 		this.stopFastPolling()
 	}
-
-	initPolling() {
-		this.stopPolling()
-		this.polling = setInterval(() => {
-			this.poll()
-		}, 1000) // Poll every 5 seconds
-	}
-
+	
 	stopPolling() {
 		if (this.polling) {
-			clearInterval(this.polling)
-			delete this.polling
+			clearTimeout(this.polling); // Clear the timeout
+			this.polling = null; // Explicitly set to null to prevent further execution
+			delete this.polling;
 		}
 	}
-
-	async poll() {
-		try {
-			const isConnected = await this.connectAllInstances()
-			if (isConnected) {
-				this.updateStatus(InstanceStatus.Ok);
-			} else {
-				this.updateStatus(InstanceStatus.ConnectionFailure, 'Failed to connect')
-			}
-		} catch (error) {
-			this.updateStatus(InstanceStatus.ConnectionFailure, error.message)
-		}
+	
+	initConnectionChecker(configs) {
+		this.stopPolling(); // Ensure any previous polling is stopped
+		this.checkConnectionStatus(configs, true); // Start the polling process with retry enabled
 	}
 
+	//------------------------------------------------------------------------------------------------
 	initFastPolling() {
 		this.stopFastPolling();
 		this.fastPolling = setInterval(() => {
@@ -383,11 +372,12 @@ class YouPlayInstance extends InstanceBase
 		//check if youplay is in player or recorder mode
 		for(var i=0;i<4;i++)
 		{
-			//console.log(await this.PlayerInfo[i].PlayerDataStatus(i+1))
 			await this.PlayerInfo[i].IsCapture(i+1);
+			await this.PlayerInfo[i].PlayerDataStatus(i+1);
+
 			if(this.PlayerInfo[i].CaptureMode != null)
 			{
-				console.log("this.PlayerInfo[i].CaptureMode ",this.PlayerInfo[i].CaptureMode )
+				//console.log("this.PlayerInfo[i].CaptureMode ",this.PlayerInfo[i].CaptureMode )
 				if (this.PlayerInfo[i].CaptureMode != null) 
 				{
 					//recorder mode
